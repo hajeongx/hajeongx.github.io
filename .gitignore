@@ -1,0 +1,8 @@
+# local-only: render frames, unpublished manuscript, internal tools and notes
+/build/
+/paper/
+/tools/
+/README_KO.md
+*.log
+.DS_Store
+__pycache__/

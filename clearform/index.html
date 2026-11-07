@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ClearForm: Shared-Surface Gaussian Splatting for Transparent and Opaque Scenes. Dual-opacity compositing recovers glass interfaces while preserving the appearance seen through them.">
+  <link rel="canonical" href="https://hajeongx.github.io/clearform/">
+  <title>ClearForm: Shared-Surface Gaussian Splatting for Transparent and Opaque Scenes</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <script>window.MathJax = {tex: {inlineMath: [['\\(', '\\)']]}, svg: {fontCache: 'global'}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+  <link rel="stylesheet" href="./static/css/style.css?v=20261107b">
+  <script defer src="./static/js/main.js?v=20261107b"></script>
+</head>
+<body>
+<header class="hero wrap">
+  <h1>ClearForm: Shared-Surface Gaussian Splatting<br>for Transparent and Opaque Scenes</h1>
+  <p class="authors">Hajeong Lee &nbsp;&nbsp;·&nbsp;&nbsp; Jong-Il Park<sup>*</sup></p>
+  <p class="affiliations">Hanyang University<br><span class="small"><sup>*</sup>Corresponding author</span></p>
+  <div class="links" aria-label="Publication resources">
+    <span class="publication-link is-pending" data-link-key="paper" title="Paper — coming soon" aria-label="Paper — coming soon">
+      <i class="pub-icon fas fa-file-pdf" aria-hidden="true"></i>
+      <span class="link-copy"><span class="link-title">Paper</span><span class="link-status">Coming soon</span></span>
+    </span>
+    <span class="publication-link is-pending" data-link-key="arxiv" title="arXiv — coming soon" aria-label="arXiv — coming soon">
+      <i class="pub-icon ai ai-arxiv" aria-hidden="true"></i>
+      <span class="link-copy"><span class="link-title">arXiv</span><span class="link-status">Coming soon</span></span>
+    </span>
+    <span class="publication-link is-pending" data-link-key="code" title="Code — coming soon" aria-label="Code — coming soon">
+      <i class="pub-icon fab fa-github" aria-hidden="true"></i>
+      <span class="link-copy"><span class="link-title">Code</span><span class="link-status">Coming soon</span></span>
+    </span>
+  </div>
+</header>
+
+<section class="teaser wide" id="teaser">
+  <div class="tabs center small-tabs" id="teaser-tabs" role="group" aria-label="3D-FRONT-T scene">
+    <button class="tab active" data-teaser="./static/videos/results/front_scene1.mp4?v=20261107b">Scene 1</button>
+    <button class="tab" data-teaser="./static/videos/results/front_scene2.mp4?v=20261107b">Scene 2</button>
+    <button class="tab" data-teaser="./static/videos/results/front_scene3.mp4?v=20261107b">Scene 3</button>
+    <button class="tab" data-teaser="./static/videos/results/front_scene4.mp4?v=20261107b">Scene 4</button>
+    <button class="tab" data-teaser="./static/videos/results/front_scene5.mp4?v=20261107b">Scene 5</button>
+  </div>
+  <div class="panel-labels three"><span>Rendering</span><span>Depth</span><span>Normal</span></div>
+  <video id="teaser-video" class="strip" src="./static/videos/results/front_scene1.mp4?v=20261107b" autoplay muted loop playsinline preload="auto" aria-label="ClearForm rendering, depth and normal on 3D-FRONT-T"></video>
+  <p class="caption center">ClearForm on 3D-FRONT-T. The rendering keeps the scene behind the glass visible, while depth and normals recover the glass surface itself.</p>
+</section>
+
+<main>
+<section class="section wrap" id="abstract">
+  <h2>Abstract</h2>
+  <p class="prose">
+    Transparent-interface reconstruction must recover glass surfaces even when most observed color comes from the scene behind them.
+    We present ClearForm, a shared-planar-Gaussian method for jointly reconstructing transparent interfaces and the appearance seen through them.
+    We identify and analyze the <em>Geometry–Appearance Compositing Dilemma</em> (GACD): when the same transparency-dependent alpha controls both color and geometry, revealing the background can weaken a transparent surface's contribution to geometric reconstruction.
+    We derive its effect on plane-based depth estimation, identify a mechanism that can weaken geometric learning, and quantify the loss of interface support through controlled comparisons.
+    To address this conflict, we develop <em>geometry-preserving dual-opacity surface reconstruction</em>.
+    Shared planar Gaussians retain interface contributions in geometry compositing while modeling transmission and sparse reflection in RGB, supported by transparency-aware geometric constraints.
+    To manage the different primitive-visibility requirements of these compositors, we introduce <em>Dual-Evidence Lifecycle</em> (DEL), which retains Gaussians supported by multi-view geometry or RGB reconstruction evidence.
+    On 3D-FRONT-T, ClearForm achieves 27.05&nbsp;mm Chamfer distance (CD) and 0.928 F1, compared with 59.18&nbsp;mm CD for our PGSR reproduction and the reported 34&nbsp;mm CD and 0.836 F1 for GLINT.
+    On TransLab, it achieves 1.65&nbsp;mm CD, 0.963 F1, and 40.14&nbsp;dB PSNR.
+    In matched ablations, dual-opacity compositing reduces CD from 59.25 to 27.09&nbsp;mm, while DEL improves PSNR by 2.06&nbsp;dB.
+  </p>
+</section>
+
+<section class="section wrap" id="method">
+  <h2>Method</h2>
+  <img class="figure" src="./static/images/paper/overview_clearform.png" alt="ClearForm pipeline: shared planar Gaussians, geometry and appearance compositors, and the Dual-Evidence Lifecycle" loading="lazy">
+  <p class="caption"><b>Overview of ClearForm.</b> Shared planar Gaussians feed separate geometry and appearance compositors, preserving the transparent interface in geometric rendering while reproducing transmitted color and reflection. Transparency-aware PGSR constraints and priors supervise geometry; image losses supervise appearance. Dual-Evidence Lifecycle (DEL) uses visibility in geometric rendering and estimated RGB-loss changes across distinct recently sampled camera views to guide primitive survival.</p>
+  <div class="eq-grid">
+    <div class="eq-card geo"><h4>Geometry path</h4><p>\(a^g_i = \rho_i\,G_i\)</p><span>Opacity does not depend on transparency \(\tau_i\), so glass still counts in depth and normals.</span></div>
+    <div class="eq-card app"><h4>Appearance path</h4><p>\(a^b_i = \rho_i(1-\tau_i)\,G_i,\quad a^r_i = \chi^r_i\beta_i\,G_i\)</p><span>Transparency lets the background show through; sparse reflection is modeled on the same surface.</span></div>
+    <div class="eq-card del"><h4>Dual-Evidence Lifecycle</h4><p>\(|\mathcal E^g_i \cup \mathcal E^{\mathrm{RGB}}_i| \ge K_{\min}\)</p><span>A Gaussian survives if enough distinct cameras support it in either the geometry pass or the RGB pass.</span></div>
+  </div>
+
+</section>
+
+<section class="section wrap" id="comparisons">
+  <h2>Comparison on 3D-FRONT-T</h2>
+  <p class="prose center-text">Scene&nbsp;3. Move the mouse over the video to compare; the right side is ClearForm.</p>
+  <div class="control-rows">
+    <div class="control-row"><span class="control-label">Method</span>
+      <div class="tabs" data-group="method">
+        <button class="tab active" data-value="gt">GT</button>
+        <button class="tab" data-value="pgsr">PGSR</button>
+        <button class="tab" data-value="tsgs">TSGS</button>
+        <button class="tab" data-value="glint">GLINT</button>
+        <button class="tab" data-value="rt">RT-Splatting</button>
+      </div>
+    </div>
+    <div class="control-row"><span class="control-label">Show</span>
+      <div class="tabs" data-group="mode">
+        <button class="tab active" data-value="mesh">Mesh</button>
+        <button class="tab" data-value="render">Rendering</button>
+      </div>
+    </div>
+  </div>
+  <div class="compare video-compare" style="--split:50%">
+    <video class="source-video" src="./static/videos/mesh_gt_vs_ours.mp4?v=20261107b" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+    <canvas class="video-canvas" width="960" height="540" role="img" aria-label="Comparison video with a slider"></canvas>
+    <span class="side-label left-label" id="cmp-left-label">GT</span><span class="side-label right-label">ClearForm (Ours)</span>
+    <div class="compare-line" aria-hidden="true"><span class="knob">↔</span></div>
+    <input class="compare-range" type="range" min="0" max="100" value="50" aria-label="Comparison slider">
+  </div>
+
+  <h3>Quantitative results</h3>
+  <img class="figure table-img" src="./static/images/paper/table_front.png" alt="Table: 3D-FRONT-T reconstruction and novel-view synthesis, five-scene means" loading="lazy">
+  <p class="caption"><b>3D-FRONT-T reconstruction and novel-view synthesis.</b> Five-scene means. Unstarred baseline scores are quoted from GLINT; * denotes a local reproduction.</p>
+</section>
+
+<section class="section wrap" id="ablation">
+  <h2>Ablation Study</h2>
+  <img class="figure" src="./static/images/paper/qualitative_ablation.jpg" alt="Cumulative ablation on 3D-FRONT-T: RGB, depth and normal from GT and PGSR to the full model" loading="lazy">
+  <p class="caption"><b>Cumulative ablation on 3D-FRONT-T.</b> Dual-opacity compositing restores the transparent interface left distorted by transparency and reflection modeling under shared opacity. From left to right, the columns progress from ground truth and PGSR to the full model; rows show RGB, depth, and normals.</p>
+  <img class="figure table-img" src="./static/images/paper/table_ablation.png" alt="Table: cumulative ablation on 3D-FRONT-T" loading="lazy" style="margin-top:22px">
+  <p class="caption"><b>Cumulative ablation on 3D-FRONT-T.</b> Each row adds one component to the preceding configuration. MAE is in degrees, accuracies in percent, and CD in mm.</p>
+
+</section>
+
+<section class="section wrap" id="results">
+  <h2>More Results</h2>
+  <div class="tabs center" id="dataset-tabs">
+    <button class="tab active" data-dataset="translab">TransLab</button>
+    <button class="tab" data-dataset="real">Ref-DL3DV (real)</button>
+  </div>
+  <div class="tabs center small-tabs" id="scene-tabs"></div>
+  <div class="panel-labels three"><span>Rendering</span><span>Depth</span><span>Normal</span></div>
+  <video id="results-video" class="strip" autoplay muted loop playsinline preload="auto" aria-label="ClearForm results video"></video>
+</section>
+
+<section class="section wrap" id="bibtex">
+  <h2>BibTeX</h2>
+  <div class="bibtex">
+    <button type="button" class="copy-btn" id="copy-bibtex"><i class="far fa-copy" aria-hidden="true"></i> Copy</button>
+<pre><code id="bibtex-text">@article{lee2026clearform,
+  title   = {ClearForm: Shared-Surface Gaussian Splatting for Transparent and Opaque Scenes},
+  author  = {Lee, Hajeong and Park, Jong-Il},
+  year    = {2026}
+}</code></pre>
+  </div>
+</section>
+</main>
+</body>
+</html>
