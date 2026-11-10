@@ -1,14 +1,14 @@
-// Publication links: replace an empty string with a real public HTTPS URL to enable that button.
+// Publication links: an empty string shows 'Coming soon'; a URL or a site-relative path enables the button.
 // Keep a URL empty until its destination actually exists and is publicly accessible.
 const PUBLICATION_LINKS = {
-  paper: '',  // e.g. 'https://example.org/papers/clearform.pdf'
-  arxiv: '',  // e.g. 'https://arxiv.org/abs/XXXX.XXXXX'
+  paper: './paper/clearform.pdf',
+  arxiv: 'https://arxiv.org/abs/2611.10370',
   code: '',   // e.g. 'https://github.com/YOUR-USERNAME/clearform'
 };
 
 // "More results" videos. Each file is one [rendering | depth | normal] strip.
 // Bump when media files are re-encoded so browsers do not keep stale cached copies.
-const MEDIA_VERSION = '20261107b';
+const MEDIA_VERSION = '20261110a';
 
 const RESULTS = {
   translab: {
@@ -27,7 +27,8 @@ document.querySelectorAll('.publication-link[data-link-key]').forEach((placehold
   const key = placeholder.dataset.linkKey;
   const value = (PUBLICATION_LINKS[key] || '').trim();
   let url;
-  try { url = new URL(value); } catch { return; }
+  if (!value) return;
+  try { url = new URL(value, window.location.href); } catch { return; }
   if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
 
   const link = document.createElement('a');
@@ -88,7 +89,9 @@ document.querySelectorAll('#teaser-tabs .tab').forEach((btn) => btn.addEventList
 // Both use the same 553-frame path (tools/campath.py), so switching modes keeps the camera position.
 // mesh_*: TSDF meshes, 960x540 per side. render_*: RGB at every method's training resolution (480x270).
 const LABELS = { gt: 'GT', pgsr: 'PGSR', tsgs: 'TSGS', glint: 'GLINT', rt: 'RT-Splatting' };
-const cmp = { method: 'gt', mode: 'mesh' };
+const cmp = { scene: '3', method: 'gt', mode: 'mesh' };
+// Methods without results for a scene (TSGS training diverged on scene 5).
+const MISSING = { 5: ['tsgs'] };
 const vc = document.querySelector('.video-compare');
 const video = vc.querySelector('.source-video');
 const canvas = vc.querySelector('.video-canvas');
@@ -105,28 +108,35 @@ function drawPaired() {
   requestAnimationFrame(drawPaired);
 }
 requestAnimationFrame(drawPaired);
-function updateComparison() {
-  // keep the same point along the camera path (the two modes have different lengths)
-  const frac = video.duration ? video.currentTime / video.duration : 0;
-  video.src = `./static/videos/${cmp.mode}_${cmp.method}_vs_ours.mp4?v=${MEDIA_VERSION}`;
+function updateComparison(keepTime) {
+  // same scene: keep the point along the camera path when switching method or mode
+  const frac = keepTime && video.duration ? video.currentTime / video.duration : 0;
+  video.src = `./static/videos/${cmp.mode}_${cmp.method}_vs_ours_s${cmp.scene}.mp4?v=${MEDIA_VERSION}`;
   video.addEventListener('loadedmetadata', () => {
     video.currentTime = frac * video.duration;
     video.play().catch(() => {});
   }, { once: true });
   document.getElementById('cmp-left-label').textContent = cmp.mode === 'mesh' && cmp.method === 'gt' ? 'GT mesh' : LABELS[cmp.method];
 }
+const methodGroup = document.querySelector('#comparisons .tabs[data-group="method"]');
+function refreshMethods() {
+  methodGroup.querySelectorAll('.tab').forEach((b) => {
+    const m = b.dataset.value;
+    // no GT images along the rendered path; some methods lack some scenes
+    b.disabled = (m === 'gt' && cmp.mode === 'render') || (MISSING[cmp.scene] || []).includes(m);
+  });
+  const current = methodGroup.querySelector(`[data-value="${cmp.method}"]`);
+  if (current.disabled) {
+    cmp.method = 'pgsr';
+    activate(methodGroup, methodGroup.querySelector('[data-value="pgsr"]'));
+  }
+}
 document.querySelectorAll('#comparisons .tabs[data-group]').forEach((group) => {
   group.querySelectorAll('.tab').forEach((btn) => btn.addEventListener('click', () => {
     activate(group, btn);
     cmp[group.dataset.group] = btn.dataset.value;
-    // no ground-truth images between capture views: GT is only available for meshes
-    const gtBtn = document.querySelector('#comparisons .tabs[data-group="method"] .tab[data-value="gt"]');
-    gtBtn.disabled = cmp.mode === 'render';
-    if (cmp.mode === 'render' && cmp.method === 'gt') {
-      cmp.method = 'pgsr';
-      activate(gtBtn.parentElement, gtBtn.parentElement.querySelector('[data-value="pgsr"]'));
-    }
-    updateComparison();
+    refreshMethods();
+    updateComparison(group.dataset.group !== 'scene');
   }));
 });
 

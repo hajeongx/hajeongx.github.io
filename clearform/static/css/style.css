@@ -20,10 +20,10 @@ h1{font-size:clamp(24px,3.4vw,38px);line-height:1.2;margin:0 0 20px;letter-spaci
 .pub-icon{flex:0 0 20px;width:20px;display:inline-flex;align-items:center;justify-content:center;font-size:19px;line-height:1}
 .link-copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px}
 .link-status{display:block;font-size:10px;font-weight:450;letter-spacing:.015em;opacity:.74}
-.publication-link.is-pending{background:#3c3c3c;border-color:#3c3c3c;opacity:.84;cursor:not-allowed}
-.publication-link.is-active{cursor:pointer}
+.publication-link.is-pending{background:#9aa1ab;border-color:#9aa1ab;color:#fff;cursor:not-allowed}
+.publication-link.is-active{background:#1f1f1f;border-color:#1f1f1f;cursor:pointer}
 .publication-link.is-active .link-status{display:none}
-.publication-link.is-active:hover,.publication-link.is-active:focus-visible{background:#161616;transform:translateY(-1px)}
+.publication-link.is-active:hover,.publication-link.is-active:focus-visible{background:#000;transform:translateY(-1px)}
 
 /* ---------- teaser / strips ---------- */
 .teaser{padding:6px 0 26px}
@@ -41,16 +41,6 @@ h3:first-of-type{margin-top:6px}
 .figure{width:100%;display:block;margin:0 auto;border-radius:6px}
 .figure.narrow{width:min(100%,800px)}
 
-
-/* method equation cards */
-.eq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
-.eq-card{border:1px solid var(--edge);border-top:4px solid;border-radius:8px;padding:14px 16px;background:var(--soft)}
-.eq-card h4{margin:0 0 4px;font-size:15px}
-.eq-card p{margin:6px 0;font-size:15px;overflow-x:auto}
-.eq-card span{font-size:13.5px;color:var(--muted)}
-.eq-card.geo{border-top-color:var(--geo)}.eq-card.geo h4{color:var(--geo)}
-.eq-card.app{border-top-color:var(--app)}.eq-card.app h4{color:var(--app)}
-.eq-card.del{border-top-color:var(--del)}.eq-card.del h4{color:var(--del)}
 
 /* ---------- tabs ---------- */
 button{font:inherit;cursor:pointer}
@@ -70,8 +60,8 @@ button{font:inherit;cursor:pointer}
 .compare img,.compare canvas{display:block;width:100%;height:100%;object-fit:cover}
 .image-compare .base,.image-compare .overlay{position:absolute;inset:0}
 .image-compare .overlay{clip-path:inset(0 calc(100% - var(--split)) 0 0)}
-.compare-line{pointer-events:none;position:absolute;top:0;bottom:0;left:var(--split);width:3px;background:#fff;box-shadow:0 0 3px #1118;transform:translateX(-50%);z-index:3}
-.knob{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:36px;height:36px;color:#1d3449;background:#fff;border:1px solid #d8e0eb;border-radius:50%;font-weight:bold;box-shadow:0 2px 8px #0003}
+.compare-line{pointer-events:none;position:absolute;top:0;bottom:0;left:var(--split);width:2px;background:rgba(255,255,255,.7);box-shadow:0 0 4px rgba(0,0,0,.35);transform:translateX(-50%);z-index:3}
+.knob{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:34px;height:34px;color:#fff;background:rgba(255,255,255,.22);border:1.5px solid rgba(255,255,255,.75);border-radius:50%;font-weight:bold;text-shadow:0 0 3px rgba(0,0,0,.5);box-shadow:0 1px 6px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .compare-range{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:5;margin:0}
 .side-label{position:absolute;top:12px;background:#0f172ad0;color:#fff;padding:4px 12px;border-radius:5px;font-size:13px;font-weight:700;z-index:4;pointer-events:none}
 .left-label{left:12px}.right-label{right:12px}
@@ -103,12 +93,16 @@ caption .r1,caption .r2,caption .r3{padding:0 5px;border-radius:3px;color:var(--
 .copy-btn{position:absolute;top:10px;right:10px;background:#fff;border:1px solid var(--edge);border-radius:6px;padding:4px 10px;font-size:13px}
 
 @media(max-width:720px){
-  .eq-grid{grid-template-columns:1fr}
   .control-row{justify-content:center}.control-label{width:auto;text-align:center;flex-basis:100%}
   .prose{text-align:left}
   .side-label{font-size:11px;padding:3px 7px}
   .panel-labels{font-size:12px}
 }
-.table-img{border-radius:0;margin-top:6px}
+.table-img{border-radius:0;margin-top:6px;width:75%!important}
+.table-img.table-wide{width:90%!important}
+@media(max-width:720px){.table-img,.table-img.table-wide{width:100%!important}}
 .tab:disabled{opacity:.4;cursor:not-allowed}
 #bibtex{padding-bottom:60px}
+#comparisons .video-compare{width:80%;margin-inline:auto}
+@media(max-width:720px){#comparisons .video-compare{width:100%}}
+#comparisons h3{margin-top:40px}

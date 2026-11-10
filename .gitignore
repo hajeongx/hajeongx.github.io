@@ -2,7 +2,7 @@
 /build/
 /paper/
 /tools/
-/README_KO.md
+/README_*.md
 *.log
 .DS_Store
 __pycache__/

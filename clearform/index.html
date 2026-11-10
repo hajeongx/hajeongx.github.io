@@ -8,10 +8,8 @@
   <title>ClearForm: Shared-Surface Gaussian Splatting for Transparent and Opaque Scenes</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <script>window.MathJax = {tex: {inlineMath: [['\\(', '\\)']]}, svg: {fontCache: 'global'}};</script>
-  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
-  <link rel="stylesheet" href="./static/css/style.css?v=20261107b">
-  <script defer src="./static/js/main.js?v=20261107b"></script>
+  <link rel="stylesheet" href="./static/css/style.css?v=20261110a">
+  <script defer src="./static/js/main.js?v=20261110a"></script>
 </head>
 <body>
 <header class="hero wrap">
@@ -36,15 +34,14 @@
 
 <section class="teaser wide" id="teaser">
   <div class="tabs center small-tabs" id="teaser-tabs" role="group" aria-label="3D-FRONT-T scene">
-    <button class="tab active" data-teaser="./static/videos/results/front_scene1.mp4?v=20261107b">Scene 1</button>
-    <button class="tab" data-teaser="./static/videos/results/front_scene2.mp4?v=20261107b">Scene 2</button>
-    <button class="tab" data-teaser="./static/videos/results/front_scene3.mp4?v=20261107b">Scene 3</button>
-    <button class="tab" data-teaser="./static/videos/results/front_scene4.mp4?v=20261107b">Scene 4</button>
-    <button class="tab" data-teaser="./static/videos/results/front_scene5.mp4?v=20261107b">Scene 5</button>
+    <button class="tab active" data-teaser="./static/videos/results/front_scene1.mp4?v=20261110a">Scene 1</button>
+    <button class="tab" data-teaser="./static/videos/results/front_scene2.mp4?v=20261110a">Scene 2</button>
+    <button class="tab" data-teaser="./static/videos/results/front_scene3.mp4?v=20261110a">Scene 3</button>
+    <button class="tab" data-teaser="./static/videos/results/front_scene4.mp4?v=20261110a">Scene 4</button>
+    <button class="tab" data-teaser="./static/videos/results/front_scene5.mp4?v=20261110a">Scene 5</button>
   </div>
   <div class="panel-labels three"><span>Rendering</span><span>Depth</span><span>Normal</span></div>
-  <video id="teaser-video" class="strip" src="./static/videos/results/front_scene1.mp4?v=20261107b" autoplay muted loop playsinline preload="auto" aria-label="ClearForm rendering, depth and normal on 3D-FRONT-T"></video>
-  <p class="caption center">ClearForm on 3D-FRONT-T. The rendering keeps the scene behind the glass visible, while depth and normals recover the glass surface itself.</p>
+  <video id="teaser-video" class="strip" src="./static/videos/results/front_scene1.mp4?v=20261110a" autoplay muted loop playsinline preload="auto" aria-label="ClearForm rendering, depth and normal on 3D-FRONT-T"></video>
 </section>
 
 <main>
@@ -66,19 +63,13 @@
 
 <section class="section wrap" id="method">
   <h2>Method</h2>
-  <img class="figure" src="./static/images/paper/overview_clearform.png" alt="ClearForm pipeline: shared planar Gaussians, geometry and appearance compositors, and the Dual-Evidence Lifecycle" loading="lazy">
+  <img class="figure" src="./static/images/paper/overview_clearform.jpg" alt="ClearForm pipeline: shared planar Gaussians, geometry and appearance compositors, and the Dual-Evidence Lifecycle" loading="lazy">
   <p class="caption"><b>Overview of ClearForm.</b> Shared planar Gaussians feed separate geometry and appearance compositors, preserving the transparent interface in geometric rendering while reproducing transmitted color and reflection. Transparency-aware PGSR constraints and priors supervise geometry; image losses supervise appearance. Dual-Evidence Lifecycle (DEL) uses visibility in geometric rendering and estimated RGB-loss changes across distinct recently sampled camera views to guide primitive survival.</p>
-  <div class="eq-grid">
-    <div class="eq-card geo"><h4>Geometry path</h4><p>\(a^g_i = \rho_i\,G_i\)</p><span>Opacity does not depend on transparency \(\tau_i\), so glass still counts in depth and normals.</span></div>
-    <div class="eq-card app"><h4>Appearance path</h4><p>\(a^b_i = \rho_i(1-\tau_i)\,G_i,\quad a^r_i = \chi^r_i\beta_i\,G_i\)</p><span>Transparency lets the background show through; sparse reflection is modeled on the same surface.</span></div>
-    <div class="eq-card del"><h4>Dual-Evidence Lifecycle</h4><p>\(|\mathcal E^g_i \cup \mathcal E^{\mathrm{RGB}}_i| \ge K_{\min}\)</p><span>A Gaussian survives if enough distinct cameras support it in either the geometry pass or the RGB pass.</span></div>
-  </div>
 
 </section>
 
 <section class="section wrap" id="comparisons">
   <h2>Comparison on 3D-FRONT-T</h2>
-  <p class="prose center-text">Scene&nbsp;3. Move the mouse over the video to compare; the right side is ClearForm.</p>
   <div class="control-rows">
     <div class="control-row"><span class="control-label">Method</span>
       <div class="tabs" data-group="method">
@@ -95,11 +86,20 @@
         <button class="tab" data-value="render">Rendering</button>
       </div>
     </div>
+    <div class="control-row"><span class="control-label">Scene</span>
+      <div class="tabs" data-group="scene">
+        <button class="tab" data-value="1">Scene 1</button>
+        <button class="tab" data-value="2">Scene 2</button>
+        <button class="tab active" data-value="3">Scene 3</button>
+        <button class="tab" data-value="4">Scene 4</button>
+        <button class="tab" data-value="5">Scene 5</button>
+      </div>
+    </div>
   </div>
   <div class="compare video-compare" style="--split:50%">
-    <video class="source-video" src="./static/videos/mesh_gt_vs_ours.mp4?v=20261107b" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+    <video class="source-video" src="./static/videos/mesh_gt_vs_ours_s3.mp4?v=20261110a" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
     <canvas class="video-canvas" width="960" height="540" role="img" aria-label="Comparison video with a slider"></canvas>
-    <span class="side-label left-label" id="cmp-left-label">GT</span><span class="side-label right-label">ClearForm (Ours)</span>
+    <span class="side-label left-label" id="cmp-left-label">GT mesh</span><span class="side-label right-label">ClearForm (Ours)</span>
     <div class="compare-line" aria-hidden="true"><span class="knob">↔</span></div>
     <input class="compare-range" type="range" min="0" max="100" value="50" aria-label="Comparison slider">
   </div>
@@ -113,7 +113,7 @@
   <h2>Ablation Study</h2>
   <img class="figure" src="./static/images/paper/qualitative_ablation.jpg" alt="Cumulative ablation on 3D-FRONT-T: RGB, depth and normal from GT and PGSR to the full model" loading="lazy">
   <p class="caption"><b>Cumulative ablation on 3D-FRONT-T.</b> Dual-opacity compositing restores the transparent interface left distorted by transparency and reflection modeling under shared opacity. From left to right, the columns progress from ground truth and PGSR to the full model; rows show RGB, depth, and normals.</p>
-  <img class="figure table-img" src="./static/images/paper/table_ablation.png" alt="Table: cumulative ablation on 3D-FRONT-T" loading="lazy" style="margin-top:22px">
+  <img class="figure table-img table-wide" src="./static/images/paper/table_ablation.png" alt="Table: cumulative ablation on 3D-FRONT-T" loading="lazy" style="margin-top:22px">
   <p class="caption"><b>Cumulative ablation on 3D-FRONT-T.</b> Each row adds one component to the preceding configuration. MAE is in degrees, accuracies in percent, and CD in mm.</p>
 
 </section>
@@ -136,6 +136,7 @@
 <pre><code id="bibtex-text">@article{lee2026clearform,
   title   = {ClearForm: Shared-Surface Gaussian Splatting for Transparent and Opaque Scenes},
   author  = {Lee, Hajeong and Park, Jong-Il},
+  journal = {arXiv preprint arXiv:2611.10370},
   year    = {2026}
 }</code></pre>
   </div>
